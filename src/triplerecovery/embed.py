@@ -13,7 +13,7 @@ class EmbeddingResult(NamedTuple):
     is_correct: bool = False
 
 
-def embed(imarr: np.ndarray, lookup: np.ndarray | None = None) -> EmbeddingResult:
+def _embed(imarr: np.ndarray, lookup: np.ndarray | None = None) -> EmbeddingResult:
     """
     Embed watermark into image.
     @Returns: dict[np.ndarray, int]
@@ -58,3 +58,23 @@ def embed(imarr: np.ndarray, lookup: np.ndarray | None = None) -> EmbeddingResul
     exhashes = bits.authentication.extract(embeddedim)
 
     return EmbeddingResult(embeddedim, time.time() - start_t, True, np.array_equal(recovery_bits, exrecovery) and np.array_equal(hashes, exhashes))
+
+
+def embed(imarr: np.ndarray, lookup: np.ndarray | None = None) -> EmbeddingResult:
+    if imarr.ndim > 3 or imarr.ndim < 2:
+        raise Exception("Image array must be 3D or 2D!")
+
+    # GREY
+    if imarr.ndim == 2:
+        return _embed(imarr, lookup)
+
+    # RGB
+    if imarr.ndim == 3:
+        start_t = time.time()
+
+        retimarr = imarr.copy()
+
+        for i in range(imarr.shape[2]):
+            retimarr[:, :, i] = _embed(retimarr[:, :, i], lookup).imarr
+
+        return EmbeddingResult(retimarr, time.time() - start_t)

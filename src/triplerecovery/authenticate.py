@@ -10,6 +10,9 @@ class AuthenticationResult(NamedTuple):
 
 
 def authenticate(imarr: np.ndarray) -> AuthenticationResult:
+    if imarr.ndim != 2:
+        raise Exception(
+            "Image array must be 2D! Given dims {}".format(imarr.ndim))
 
     start_t = time.time()
 
@@ -25,4 +28,5 @@ def authenticate(imarr: np.ndarray) -> AuthenticationResult:
         for j in range(exhashes.shape[1]):
             tempred[i, j] = np.array_equal(hashes[i, j], exhashes[i, j])
     tempred = ~tempred
+
     return AuthenticationResult(tempred, time.time() - start_t)

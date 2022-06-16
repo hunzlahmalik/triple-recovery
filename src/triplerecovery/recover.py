@@ -1,6 +1,6 @@
 from typing import NamedTuple
 import numpy as np
-import scipy.ndimage
+import cv2
 import time
 from triplerecovery import blocks, authenticate, bits
 
@@ -10,8 +10,15 @@ class RecoveryResult(NamedTuple):
     time: float
 
 
-def _fromarray(imarr: np.ndarray, recovery_bits: np.ndarray,
-               tempred: np.ndarray, lookup: np.ndarray) -> RecoveryResult:
+def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
+             tempred: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC) -> RecoveryResult:
+
+    if lookup is None:
+        lookup = np.array([
+            [0, 7, 13, 10],
+            [1, 6, 12, 11],
+            [4, 2, 9, 15],
+            [5, 3, 8, 14]], dtype=np.uint8)
 
     start_t = time.time()
 
@@ -87,8 +94,14 @@ def _fromarray(imarr: np.ndarray, recovery_bits: np.ndarray,
                     # but we are going to replace only the tempred 16x16
 
                     # shaping these recovery bits to the 16x16 blocks
-                    r16x16 = blocks.make(scipy.ndimage.zoom(recovery_decimals.reshape(int(
-                        imarr.shape[0]/(4*4)), int(imarr.shape[1]/(4*4))), 4, order=0), b16x16_shape, addChannel=False)
+                    _zoomshape = int(
+                        imarr.shape[0]/(4*4)), int(imarr.shape[1]/(4*4))
+                    r16x16 = blocks.make(cv2.resize(
+                        recovery_decimals.reshape(
+                            _zoomshape), (_zoomshape[0]*4, _zoomshape[1]*4),
+                        interpolation=interpolation),
+                        b16x16_shape, addChannel=False
+                    )
 
                     # now we repace which ever 16x16 block is tempred
                     for i in range(tempred[lookup[partner, id]].shape[0]):
@@ -110,11 +123,34 @@ def _fromarray(imarr: np.ndarray, recovery_bits: np.ndarray,
     return RecoveryResult(recoveredarr, time.time() - start_t)
 
 
-def recover(imarr: np.ndarray, lookup: np.ndarray) -> RecoveryResult:
-    # extracting the recovery bits
-    recovery_bits = bits.recovery.extract(imarr)
-    # extracting the auth bits
-    auth_bits = authenticate.fromarray(imarr).tempred
+def recover(imarr: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC) -> RecoveryResult:
+    if imarr.ndim > 3 or imarr.ndim < 2:
+        raise Exception("Image array must be 3D or 2D!")
 
-    # calling the recovery function
-    return _fromarray(imarr, recovery_bits, auth_bits, lookup)
+    # GREY
+    if imarr.ndim == 2:
+        # extracting the recovery bits
+        recovery_bits = bits.recovery.extract(imarr)
+        # extracting the auth bits
+        auth_bits = authenticate(imarr).tempred
+
+        # calling the recovery function
+        return _recover(imarr, recovery_bits, auth_bits, lookup)
+
+    # RGB
+    if imarr.ndim == 3:
+        start_t = time.time()
+
+        retimarr = imarr.copy()
+
+        for i in range(retimarr.shape[2]):
+            # extracting the recovery bits
+            recovery_bits = bits.recovery.extract(retimarr[:, :, i])
+            # extracting the auth bits
+            auth_bits = authenticate(retimarr[:, :, i]).tempred
+
+            # calling the recovery function
+            retimarr[:, :, i] = _recover(
+                retimarr[:, :, i], recovery_bits, auth_bits, lookup).imarr
+
+        return RecoveryResult(retimarr, time.time() - start_t)
