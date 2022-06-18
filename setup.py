@@ -1,14 +1,15 @@
-from setuptools import setup
+import setuptools
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
-setup(
+setuptools.setup(
     name='triplerecovery',
-    version='0.0.3',
+    version='0.0.4',
     description='Triple Recovery paper implementation in python',
     py_modules=['triplerecovery'],
     package_dir={'': 'src'},
+    packages=setuptools.find_packages(where="src"),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
