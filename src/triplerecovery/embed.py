@@ -2,6 +2,7 @@ from typing import NamedTuple
 import numpy as np
 import time
 import triplerecovery.bits as bits
+from triplerecovery.constants import LOOKUPS
 
 CHECK_EMBEDDING = False
 
@@ -53,13 +54,8 @@ def _embed(imarr: np.ndarray,  lookup: np.ndarray, key: str) -> EmbeddingResult:
     return EmbeddingResult(embeddedim, time.time() - start_t, True, np.array_equal(recovery_bits, exrecovery) and np.array_equal(hashes, exhashes))
 
 
-def embed(imarr: np.ndarray, lookup: np.ndarray | None = None, key: str = "key") -> EmbeddingResult:
-    if lookup is None:
-        lookup = np.array([
-            [0, 7, 13, 10],
-            [1, 6, 12, 11],
-            [4, 2, 9, 15],
-            [5, 3, 8, 14]], dtype=np.uint8)
+def embed(imarr: np.ndarray,  lookupidx: np.uint8 = 0, key: str = "key") -> EmbeddingResult:
+    lookup = LOOKUPS[lookupidx]
 
     if imarr.ndim > 3 or imarr.ndim < 2:
         raise Exception("Image array must be 3D or 2D!")

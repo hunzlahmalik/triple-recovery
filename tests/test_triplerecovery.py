@@ -29,7 +29,7 @@ def test_grey_lena():
     hashes = bits.authentication.make(lla)
 
     # embedding
-    ER = embed(imarr, lookup, key=key)
+    ER = embed(imarr, 4, key=key)
     embedded = ER.imarr.copy()
 
     # extract recoverybits
@@ -48,7 +48,7 @@ def test_grey_lena():
     # authenticate
     AU = authenticate(embedded)
 
-    RE = recover(embedded, lookup, key=ekey)
+    RE = recover(embedded, 4, key=ekey)
 
     print("Time: ", time.time() - start_t)
     print("RE sum: ", (recovery_bits != extracted_bits).sum())
@@ -85,7 +85,7 @@ def test_lena():
     hashes = bits.authentication.make(lla)
 
     # embedding
-    ER = embed(imarr, lookup, key=key)
+    ER = embed(imarr, 0, key=key)
     embedded = ER.imarr.copy()
     # authenticate
     # AU = authenticate(embedded)
@@ -107,7 +107,7 @@ def test_lena():
        # authenticate
     AU = authenticate(embedded)
 
-    RE = recover(embedded, lookup, key=ekey)
+    RE = recover(embedded, 0, key=ekey)
 
     print("Time: ", time.time() - start_t)
     print("RE sum: ", (recovery_bits != extracted_bits).sum())
@@ -144,7 +144,7 @@ def test_grey_cat():
     hashes = bits.authentication.make(lla)
 
     # embedding
-    ER = embed(imarr, lookup, key=key)
+    ER = embed(imarr, 0, key=key)
     embedded = ER.imarr.copy()
     # authenticate
     # AU = authenticate(embedded)
@@ -171,7 +171,7 @@ def test_grey_cat():
     for i in range(width):
         for j in range(height):
             embedded[startx+i][starty+j] = 0
-            
+
     startx = 400
     starty = 400
     width = 200
@@ -184,7 +184,7 @@ def test_grey_cat():
        # authenticate
     AU = authenticate(embedded)
 
-    RE = recover(embedded, lookup, key=ekey)
+    RE = recover(embedded, 0, key=ekey)
 
     print("Time: ", time.time() - start_t)
     print("RE sum: ", (recovery_bits != extracted_bits).sum())
@@ -221,7 +221,7 @@ def test_cat():
     hashes = bits.authentication.make(lla)
 
     # embedding
-    ER = embed(imarr, lookup, key=key)
+    ER = embed(imarr, 0, key=key)
     embedded = ER.imarr.copy()
     # authenticate
     # AU = authenticate(embedded)
@@ -252,7 +252,7 @@ def test_cat():
        # authenticate
     AU = authenticate(embedded)
 
-    RE = recover(embedded, lookup, key=ekey)
+    RE = recover(embedded, 1, key=ekey)
 
     print("Time: ", time.time() - start_t)
     print("RE sum: ", (recovery_bits != extracted_bits).sum())
@@ -271,7 +271,7 @@ def test_cat():
 
 
 if True:
-    [imarr, imarr2, imarr3, imarr4, imarr5] = test_cat()
+    [imarr, imarr2, imarr3, imarr4, imarr5] = test_grey_lena()
     cv2.imshow("Original", imarr)
     cv2.imshow("Embedded", imarr2)
     cv2.imshow("Edited", imarr3)

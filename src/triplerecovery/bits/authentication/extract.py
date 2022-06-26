@@ -2,6 +2,7 @@ import numpy as np
 import hashlib
 from triplerecovery.blocks import make as make_blocks
 from triplerecovery.utils import get_bit
+from triplerecovery.constants import HASH_SIZE
 
 '''
 Will make the recovery bits for image
@@ -10,8 +11,6 @@ Will make the recovery bits for image
 '''
 Data is one 16x16 block converted into four 8x8 blocks
 '''
-
-HASH_SIZE = 16
 
 
 def get_bits(data: np.ndarray) -> np.ndarray:
@@ -72,7 +71,7 @@ def extract(imarr: np.ndarray) -> np.ndarray:
 
     for i in range(mainblocks.shape[0]):
         b16x16[i][0] = make_blocks(mainblocks[i][0], b16x16_shape,
-                                  addChannel=False)
+                                   addChannel=False)
 
     # Making 8x8 blocks of those 16x16 Step 9
     b8x8_shape = (8, 8)
@@ -86,7 +85,7 @@ def extract(imarr: np.ndarray) -> np.ndarray:
     for i in range(b16x16.shape[0]):
         for j in range(b16x16.shape[2]):
             b8x8[i][0][j] = make_blocks(b16x16[i][0][j].copy(), b8x8_shape,
-                                       addChannel=False)
+                                        addChannel=False)
 
     ################################################################################
 

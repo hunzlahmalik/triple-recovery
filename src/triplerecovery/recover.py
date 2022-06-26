@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 from triplerecovery import blocks, authenticate, bits
+from triplerecovery.constants import LOOKUPS
 
 
 class RecoveryResult(NamedTuple):
@@ -12,13 +13,6 @@ class RecoveryResult(NamedTuple):
 
 def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
              tempred: np.ndarray, lookup: np.ndarray, interpolation: int, key: str) -> RecoveryResult:
-
-    if lookup is None:
-        lookup = np.array([
-            [0, 7, 13, 10],
-            [1, 6, 12, 11],
-            [4, 2, 9, 15],
-            [5, 3, 8, 14]], dtype=np.uint8)
 
     start_t = time.time()
 
@@ -123,9 +117,11 @@ def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
     return RecoveryResult(recoveredarr, time.time() - start_t)
 
 
-def recover(imarr: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC, key: str = "key") -> RecoveryResult:
+def recover(imarr: np.ndarray, lookupidx: np.uint8 = 0, interpolation: int = cv2.INTER_CUBIC, key: str = "key") -> RecoveryResult:
     if imarr.ndim > 3 or imarr.ndim < 2:
         raise Exception("Image array must be 3D or 2D!")
+
+    lookup = LOOKUPS[lookupidx]
 
     # GREY
     if imarr.ndim == 2:

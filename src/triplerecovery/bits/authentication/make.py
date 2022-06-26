@@ -2,6 +2,7 @@ import numpy as np
 import hashlib
 from triplerecovery.blocks import make as make_blocks
 from triplerecovery.utils import set_lsb_zero
+from triplerecovery.constants import HASH_SIZE
 
 '''
 Will make the recovery bits for image
@@ -11,10 +12,9 @@ Will make the recovery bits for image
 Data is one 16x16 block converted into four 8x8 blocks
 '''
 
-HASH_SIZE = 16
-
 
 def hash_block(data: np.ndarray, key: str = None, digest_size=HASH_SIZE, extras=[]) -> hashlib:
+
     if data.shape != (4, 8, 8):
         print(f"Warning! given size {data.shape} instead of (4, 8, 8)")
     local = data.copy().astype(np.int8)  # copying to avoid overighting lsb
@@ -24,8 +24,8 @@ def hash_block(data: np.ndarray, key: str = None, digest_size=HASH_SIZE, extras=
     else:
         h = hashlib.blake2b(key=key.encode())
     h.update(local.data)
-    for extra in extras:
-        h.update(extra.encode())
+    # for extra in extras:
+    #     h.update(extra.encode())
     return h
 
 
@@ -33,17 +33,21 @@ def bin2np(binstr) -> np.ndarray:
     return np.frombuffer(binstr, dtype=np.uint8)
 
 
-def makefrom8x8(b8x8: np.ndarray) -> np.ndarray:
+def makefrom8x8(b8x8: np.ndarray, extras: np.ndarray = np.array([], np.uint8)) -> np.ndarray:
+    '''
+    extras should be only of one byte each index
+    '''
     # creating hash
-    hashes = np.zeros((*b8x8[:, 0].shape[:2], HASH_SIZE*8), dtype=object)
+    hashes = np.zeros(
+        (*b8x8[:, 0].shape[:2], HASH_SIZE*8), dtype=object)
     for i in range(b8x8[:, 0].shape[0]):
         for j in range(b8x8[:, 0].shape[1]):
-            hashes[i][j] = np.unpackbits(bin2np(hash_block(
-                b8x8[i, 0, j]).digest()))
+            hashes[i][j] = np.unpackbits(np.append(bin2np(hash_block(
+                b8x8[i, 0, j], digest_size=HASH_SIZE-len(extras)).digest()), extras))
     return hashes
 
 
-def make(imarr: np.ndarray) -> np.ndarray:
+def make(imarr: np.ndarray, lookupidx: np.uint8 = 0) -> np.ndarray:
     '''
     '''
 
@@ -72,7 +76,7 @@ def make(imarr: np.ndarray) -> np.ndarray:
 
     for i in range(mainblocks.shape[0]):
         b16x16[i][0] = make_blocks(mainblocks[i][0], b16x16_shape,
-                                  addChannel=False)
+                                   addChannel=False)
 
     # Making 8x8 blocks of those 16x16 Step 9
     b8x8_shape = (8, 8)
@@ -86,10 +90,17 @@ def make(imarr: np.ndarray) -> np.ndarray:
     for i in range(b16x16.shape[0]):
         for j in range(b16x16.shape[2]):
             b8x8[i][0][j] = make_blocks(b16x16[i][0][j].copy(), b8x8_shape,
-                                       addChannel=False)
+                                        addChannel=False)
 
     ################################################################################
 
+    # 1 byte for width, max 64*255=16320 -- no faidah
+    # 1 byte for height, max 64*255=16320 -- no faidah
+    # 1 byte for lookup index
+    # 1 byte for block number -- no faidah
+    # extras = np.array([imarr.shape[0]//64, imarr.shape[1]//64,
+    #                   lookupidx, 0], np.uint8)
+    # extras = np.array([lookupidx], np.uint8)
     hashes = makefrom8x8(b8x8)
 
     ################################################################################

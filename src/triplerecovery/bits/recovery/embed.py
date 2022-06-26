@@ -58,7 +58,7 @@ def embed(imarr: np.ndarray, recovery_bits: np.ndarray) -> np.ndarray:
 
     for i in range(mainblocks.shape[0]):
         b16x16[i][0] = blocks.make(mainblocks[i][0], b16x16_shape,
-                                  addChannel=False)
+                                   addChannel=False)
 
     # Making 8x8 blocks of those 16x16 Step 9
     b8x8_shape = (8, 8)
@@ -72,7 +72,7 @@ def embed(imarr: np.ndarray, recovery_bits: np.ndarray) -> np.ndarray:
     for i in range(b16x16.shape[0]):
         for j in range(b16x16.shape[2]):
             b8x8[i][0][j] = blocks.make(b16x16[i][0][j].copy(), b8x8_shape,
-                                       addChannel=False)
+                                        addChannel=False)
 
     ################################################################################
 
@@ -95,4 +95,4 @@ def embed(imarr: np.ndarray, recovery_bits: np.ndarray) -> np.ndarray:
 
     # merging main blocks to main image
     return blocks.combine(cmainblocks.copy(), imarr.shape,
-                         mainblock_shape).reshape(imarr.shape)
+                          mainblock_shape).reshape(imarr.shape)
