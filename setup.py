@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name='triplerecovery',
-    version='0.0.5',
+    version='0.0.6',
     description='Triple Recovery paper implementation in python',
     py_modules=['triplerecovery'],
     package_dir={'': 'src'},

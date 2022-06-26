@@ -98,7 +98,7 @@ def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
                         imarr.shape[0]/(4*4)), int(imarr.shape[1]/(4*4))
                     r16x16 = blocks.make(cv2.resize(
                         recovery_decimals.reshape(
-                            _zoomshape), (_zoomshape[0]*4, _zoomshape[1]*4),
+                            _zoomshape), (_zoomshape[1]*4, _zoomshape[0]*4),
                         interpolation=interpolation),
                         b16x16_shape, addChannel=False
                     )

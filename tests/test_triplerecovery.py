@@ -163,6 +163,15 @@ def test_grey_cat():
         for j in range(height):
             embedded[startx+i][starty+j] = 0
 
+    startx = 450
+    starty = 300
+    width = 200
+    height = 100
+
+    for i in range(width):
+        for j in range(height):
+            embedded[startx+i][starty+j] = 0
+            
     startx = 400
     starty = 400
     width = 200
@@ -262,7 +271,7 @@ def test_cat():
 
 
 if True:
-    [imarr, imarr2, imarr3, imarr4, imarr5] = test_grey_cat()
+    [imarr, imarr2, imarr3, imarr4, imarr5] = test_cat()
     cv2.imshow("Original", imarr)
     cv2.imshow("Embedded", imarr2)
     cv2.imshow("Edited", imarr3)
