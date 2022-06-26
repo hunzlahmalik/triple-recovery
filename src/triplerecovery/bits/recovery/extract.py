@@ -1,6 +1,6 @@
 import numpy as np
 from triplerecovery.blocks import make as make_blocks
-from triplerecovery.utils import get_bit
+from triplerecovery.utils import get_bit, unshuffle_list
 
 '''
 Will extract the recovery bits in image
@@ -20,7 +20,7 @@ def _extractfrom8x8(b8x8: np.ndarray, imarr_shape: tuple, avgblocks_shape: tuple
     return bits.reshape(16, -1)
 
 
-def extract(imarr: np.ndarray) -> np.ndarray:
+def extract(imarr: np.ndarray, key: str) -> np.ndarray:
     '''
     '''
 
@@ -73,5 +73,11 @@ def extract(imarr: np.ndarray) -> np.ndarray:
     bits = _extractfrom8x8(b8x8, imarr.shape)
 
     ################################################################################
+
+    # unshuffling the bits
+    seed = np.frombuffer(
+        key.encode('utf-8'), dtype=np.uint8)
+    for i in range(bits.shape[0]):
+        bits[i] = unshuffle_list(bits[i], seed)
 
     return bits

@@ -45,3 +45,21 @@ def set_lsb_zero(num: np.ndarray):
     Clearing the first two LSB of ndarray
     '''
     return set_bit(set_bit(num, 0, 0), 1, 0)
+
+
+def shuffle_under_seed(ls: np.ndarray, seed: list[int]):
+    lst = ls.copy()
+    np.random.default_rng(seed).shuffle(lst)
+    return lst
+
+
+def unshuffle_list(shuffled_ls: np.ndarray, seed: list[int]):
+    n = len(shuffled_ls)
+    # Perm is [1, 2, ..., n]
+    perm = list(range(1, n+1))
+    # Apply sigma to perm
+    shuffled_perm = shuffle_under_seed(perm, seed)
+    # Zip and unshuffle
+    zipped_ls = list(zip(shuffled_ls, shuffled_perm))
+    zipped_ls.sort(key=lambda x: x[1])
+    return np.array([a for (a, b) in zipped_ls])

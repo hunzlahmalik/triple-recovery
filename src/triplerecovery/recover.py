@@ -11,7 +11,7 @@ class RecoveryResult(NamedTuple):
 
 
 def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
-             tempred: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC) -> RecoveryResult:
+             tempred: np.ndarray, lookup: np.ndarray, interpolation: int, key: str) -> RecoveryResult:
 
     if lookup is None:
         lookup = np.array([
@@ -72,7 +72,7 @@ def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
 
                     if partner_block == (-1, -1):
                         print(
-                            "Could not find partner block for id {}".format(id))
+                            "Could not find partner block for {} {}".format(partner, id))
                         continue
 
                     # get recovery bits of this id
@@ -123,19 +123,19 @@ def _recover(imarr: np.ndarray, recovery_bits: np.ndarray,
     return RecoveryResult(recoveredarr, time.time() - start_t)
 
 
-def recover(imarr: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC) -> RecoveryResult:
+def recover(imarr: np.ndarray, lookup: np.ndarray | None = None, interpolation: int = cv2.INTER_CUBIC, key: str = "key") -> RecoveryResult:
     if imarr.ndim > 3 or imarr.ndim < 2:
         raise Exception("Image array must be 3D or 2D!")
 
     # GREY
     if imarr.ndim == 2:
         # extracting the recovery bits
-        recovery_bits = bits.recovery.extract(imarr)
+        recovery_bits = bits.recovery.extract(imarr, key)
         # extracting the auth bits
         auth_bits = authenticate(imarr).tempred
 
         # calling the recovery function
-        return _recover(imarr, recovery_bits, auth_bits, lookup)
+        return _recover(imarr, recovery_bits, auth_bits, lookup, interpolation, key)
 
     # RGB
     if imarr.ndim == 3:
@@ -145,12 +145,12 @@ def recover(imarr: np.ndarray, lookup: np.ndarray | None = None, interpolation: 
 
         for i in range(retimarr.shape[2]):
             # extracting the recovery bits
-            recovery_bits = bits.recovery.extract(retimarr[:, :, i])
+            recovery_bits = bits.recovery.extract(retimarr[:, :, i], key)
             # extracting the auth bits
             auth_bits = authenticate(retimarr[:, :, i]).tempred
 
             # calling the recovery function
             retimarr[:, :, i] = _recover(
-                retimarr[:, :, i], recovery_bits, auth_bits, lookup).imarr
+                retimarr[:, :, i], recovery_bits, auth_bits, lookup, interpolation, key).imarr
 
         return RecoveryResult(retimarr, time.time() - start_t)
