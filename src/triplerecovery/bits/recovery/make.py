@@ -58,9 +58,10 @@ def make(imarr: np.ndarray, lookup: np.ndarray, key: str) -> np.ndarray:
                 [average_bits[i] for i in partner if i != id])
 
     # shuffling here
-    seed = np.frombuffer(
-        key.encode('utf-8'), dtype=np.uint8)
-    for i in range(recovery_bits.shape[0]):
-        recovery_bits[i] = shuffle_under_seed(recovery_bits[i], seed)
+    if key is not None and key != "":
+        seed = np.frombuffer(
+            key.encode('utf-8'), dtype=np.uint8)
+        for i in range(recovery_bits.shape[0]):
+            recovery_bits[i] = shuffle_under_seed(recovery_bits[i], seed)
 
     return recovery_bits
