@@ -2,15 +2,16 @@ import os
 import numpy as np
 import cv2
 import time
+from PIL import Image
 
 from triplerecovery import bits, utils, embed, authenticate, recover
 
-key = "this is key"
-ekey = "this is key"
+key = ""
+ekey = ""
 
 
 def test_grey_lena():
-    imagepath = os.path.dirname(os.path.abspath(__file__))+'/lena.gif'
+    imagepath = os.path.dirname(os.path.abspath(__file__))+'/samples/lena.gif'
 
     start_t = time.time()
 
@@ -24,37 +25,38 @@ def test_grey_lena():
                       [5, 3, 8, 14]], dtype=np.uint8)
 
     # make recoverybits
-    recovery_bits = bits.recovery .make(imarr, lookup, key)
-    lla = bits.recovery.embed(imarr, recovery_bits)
-    hashes = bits.authentication.make(lla)
+    # recovery_bits = bits.recovery .make(imarr, lookup, key)
+    # lla = bits.recovery.embed(imarr, recovery_bits)
+    # hashes = bits.authentication.make(lla)
 
     # embedding
-    ER = embed(imarr, 4, key=key)
+    ER = embed(imarr, lookupidx=0, key=key)
     embedded = ER.imarr.copy()
 
-    # extract recoverybits
-    extracted_bits = bits.recovery.extract(embedded, ekey)
-    # extract hashes
-    exthashes = bits.authentication.extract(embedded)
+    # # extract recoverybits
+    # extracted_bits = bits.recovery.extract(embedded, ekey)
+    # # extract hashes
+    # exthashes = bits.authentication.extract(embedded)
+    print(embedded.shape)
+    startx = 0
+    starty = 0
+    height = 384
+    width = 512
 
-    startx = 200
-    starty = 200
-    width = 100
-    height = 100
-
-    for i in range(width):
-        for j in range(height):
+    for i in range(height):
+        for j in range(width):
             embedded[startx+i][starty+j] = 0
     # authenticate
     AU = authenticate(embedded)
 
-    RE = recover(embedded, 4, key=ekey)
+    RE = recover(embedded, lookupidx=0, key=ekey)
 
     print("Time: ", time.time() - start_t)
-    print("RE sum: ", (recovery_bits != extracted_bits).sum())
-    print("RE hash sum: ", (hashes != exthashes).sum())
-    print("RE hash emb: ", (RE.imarr != embedded).sum())
-    print("PSNR: ", utils.psnr(embedded, imarr))
+    # print("RE sum: ", (recovery_bits != extracted_bits).sum())
+    # print("RE hash sum: ", (hashes != exthashes).sum())
+    # print("RE hash emb: ", (RE.imarr != embedded).sum())
+    print("PSNR: ", utils.psnr(ER.imarr, imarr))
+    print("PSNR edited: ", utils.psnr(embedded, imarr))
     print("PSNR recoverd: ", utils.psnr(RE.imarr, imarr))
 
     # assert (recovery_bits != extracted_bits).sum(
@@ -67,7 +69,8 @@ def test_grey_lena():
 
 
 def test_lena():
-    imagepath = os.path.dirname(os.path.abspath(__file__))+'/lena_color.gif'
+    imagepath = os.path.dirname(os.path.abspath(
+        __file__))+'/samples/lena_color.gif'
 
     start_t = time.time()
 
@@ -80,9 +83,9 @@ def test_lena():
                        [5, 3, 8, 14]], dtype=np.uint8)
 
     # make recoverybits
-    recovery_bits = bits.recovery .make(imarr, lookup, key)
-    lla = bits.recovery.embed(imarr, recovery_bits)
-    hashes = bits.authentication.make(lla)
+    # recovery_bits = bits.recovery .make(imarr, lookup, key)
+    # lla = bits.recovery.embed(imarr, recovery_bits)
+    # hashes = bits.authentication.make(lla)
 
     # embedding
     ER = embed(imarr, 0, key=key)
@@ -91,9 +94,9 @@ def test_lena():
     # AU = authenticate(embedded)
 
     # extract recoverybits
-    extracted_bits = bits.recovery.extract(embedded, ekey)
+    # extracted_bits = bits.recovery.extract(embedded, ekey)
     # extract hashes
-    exthashes = bits.authentication.extract(embedded)
+    # exthashes = bits.authentication.extract(embedded)
 
     startx = 200
     starty = 200
@@ -110,10 +113,11 @@ def test_lena():
     RE = recover(embedded, 0, key=ekey)
 
     print("Time: ", time.time() - start_t)
-    print("RE sum: ", (recovery_bits != extracted_bits).sum())
-    print("RE hash sum: ", (hashes != exthashes).sum())
+    # print("RE sum: ", (recovery_bits != extracted_bits).sum())
+    # print("RE hash sum: ", (hashes != exthashes).sum())
     print("RE hash emb: ", (RE.imarr != embedded).sum())
-    print("PSNR: ", utils.psnr(embedded, imarr))
+    print("PSNR: ", utils.psnr(ER.imarr, imarr))
+    print("PSNR edited: ", utils.psnr(embedded, imarr))
     print("PSNR recoverd: ", utils.psnr(RE.imarr, imarr))
 
     # assert (recovery_bits != extracted_bits).sum(
@@ -126,7 +130,7 @@ def test_lena():
 
 
 def test_grey_cat():
-    imagepath = os.path.dirname(os.path.abspath(__file__))+'/cat.jpg'
+    imagepath = os.path.dirname(os.path.abspath(__file__))+'/samples/cat.jpg'
 
     start_t = time.time()
 
@@ -203,7 +207,7 @@ def test_grey_cat():
 
 
 def test_cat():
-    imagepath = os.path.dirname(os.path.abspath(__file__))+'/cat.jpg'
+    imagepath = os.path.dirname(os.path.abspath(__file__))+'/samples/cat.jpg'
 
     start_t = time.time()
 

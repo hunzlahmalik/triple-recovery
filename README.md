@@ -35,3 +35,6 @@ recovered_image=trir.recover(imarr).imarr
 # OR for changed interpolation
 recovered_image=trir.recover(imarr, interpolation = cv2.INTER_CUBIC).imarr
 ```
+
+## Material
+The images material and tests are available on this link: https://drive.google.com/drive/folders/1kamSYESP3HOLn9pyPLIR_IH1qB-aPhI6?usp=sharing

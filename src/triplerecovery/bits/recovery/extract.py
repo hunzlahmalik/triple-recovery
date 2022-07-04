@@ -75,9 +75,10 @@ def extract(imarr: np.ndarray, key: str) -> np.ndarray:
     ################################################################################
 
     # unshuffling the bits
-    seed = np.frombuffer(
-        key.encode('utf-8'), dtype=np.uint8)
-    for i in range(bits.shape[0]):
-        bits[i] = unshuffle_list(bits[i], seed)
+    if key is not None and key != "":
+        seed = np.frombuffer(
+            key.encode('utf-8'), dtype=np.uint8)
+        for i in range(bits.shape[0]):
+            bits[i] = unshuffle_list(bits[i], seed)
 
     return bits

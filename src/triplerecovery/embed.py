@@ -54,7 +54,7 @@ def _embed(imarr: np.ndarray,  lookup: np.ndarray, key: str) -> EmbeddingResult:
     return EmbeddingResult(embeddedim, time.time() - start_t, True, np.array_equal(recovery_bits, exrecovery) and np.array_equal(hashes, exhashes))
 
 
-def embed(imarr: np.ndarray,  lookupidx: np.uint8 = 0, key: str = "key") -> EmbeddingResult:
+def embed(imarr: np.ndarray,  lookupidx: np.uint8 = 0, key: str = "") -> EmbeddingResult:
     lookup = LOOKUPS[lookupidx]
 
     if imarr.ndim > 3 or imarr.ndim < 2:

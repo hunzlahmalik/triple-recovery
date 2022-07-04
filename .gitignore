@@ -1,3 +1,10 @@
+/tests/psnr_results*
+/tests/images.7z
+/tests/standardimages.7z
+/tests/images/*
+# important images
+!tests/images/standard/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
